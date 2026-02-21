@@ -4,7 +4,7 @@ import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.applications.efficientnet import preprocess_input
 
-# Page config
+# Page configuration
 st.set_page_config(
     page_title="Solar Panel Defect Classifier",
     page_icon="☀️",
@@ -12,18 +12,19 @@ st.set_page_config(
 )
 
 st.title("☀️ Solar Panel Defect Classifier")
-st.write("Upload an image of a solar panel to detect defects using your model.")
+st.write("Upload an image of a solar panel to detect defects using your trained EfficientNet model.")
 
-# Load the model (make sure this filename exists in Code/ folder)
+# Load the model (file must be in the same Code/ folder)
 @st.cache_resource
 def load_model():
-    # If your file name is different, change it here
+    # If your model file name is different, change it here
     model = tf.keras.models.load_model("trained_effnet_finetune.h5")
     return model
 
 with st.spinner("Loading model..."):
     model = load_model()
 
+# Class names in the same order as training
 CLASSES = [
     "Bird-drop",
     "Clean",
@@ -40,14 +41,14 @@ uploaded_file = st.file_uploader(
 )
 
 if uploaded_file is not None:
-    # Read and show image
+    # Read and display image
     image = Image.open(uploaded_file).convert("RGB")
     st.image(image, caption="Uploaded Image", use_column_width=True)
 
-    # Preprocess for EfficientNet
+    # Preprocess for EfficientNetB0 (224x224 + preprocess_input)
     img = image.resize((224, 224))
     img_array = np.array(img)
-    img_array = np.expand_dims(img_array, axis=0)
+    img_array = np.expand_dims(img_array, axis=0)  # shape (1, 224, 224, 3)
     img_array = preprocess_input(img_array.astype(np.float32))
 
     # Predict
@@ -58,11 +59,13 @@ if uploaded_file is not None:
 
     predicted_class = CLASSES[predicted_idx]
 
+    # Main prediction display
     st.markdown(
         f"### **Prediction: {predicted_class}**\n"
         f"***Confidence: {confidence:.1%}**"
     )
 
+    # Status message
     if predicted_class == "Clean":
         st.success("The panel appears to be in good condition!!")
     else:
@@ -70,7 +73,7 @@ if uploaded_file is not None:
 
     # Top 3 predictions
     st.write("### Top 3 Predictions")
-    top_indices = np.argsort(predictions[0])[-3:][::-1]
+    top_indices = np.argsort(predictions[0])[-3:][::-1]  # top 3 indices descending
 
     for i, idx in enumerate(top_indices):
         class_name = CLASSES[idx]
@@ -82,7 +85,7 @@ if uploaded_file is not None:
         else:
             st.markdown(f"**3rd**: {class_name} - {prob:.1%}")
 
-    # Show all probabilities
+    # Show all class probabilities
     with st.expander("View all class probabilities"):
         for i, prob in enumerate(predictions[0]):
             st.write(f"{CLASSES[i]:<20} {prob:.1%}")
