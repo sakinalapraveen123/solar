@@ -17,8 +17,8 @@ st.write("Upload an image of a solar panel to detect defects using your trained 
 # Load the model (file must be in the same Code/ folder)
 @st.cache_resource
 def load_model():
-    # If your model file name is different, change it here
-    model = tf.keras.models.load_model("trained_effnet_finetune.h5")
+    # Make sure solar_panel_classifier.keras is in Code/ in GitHub
+    model = tf.keras.models.load_model("solar_panel_classifier.keras", compile=False)
     return model
 
 with st.spinner("Loading model..."):
@@ -85,7 +85,7 @@ if uploaded_file is not None:
         else:
             st.markdown(f"**3rd**: {class_name} - {prob:.1%}")
 
-    # Show all class probabilities
+    # Show all probabilities
     with st.expander("View all class probabilities"):
         for i, prob in enumerate(predictions[0]):
             st.write(f"{CLASSES[i]:<20} {prob:.1%}")
