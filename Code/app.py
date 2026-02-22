@@ -56,7 +56,7 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
-      st.image(image, caption="Uploaded Image", use_column_width=True)
+    st.image(image, caption="Uploaded Image", use_column_width=True)
 
     img = image.resize((IMG_HEIGHT, IMG_WIDTH))
     img_array = np.array(img, dtype=np.float32)
@@ -92,7 +92,7 @@ if uploaded_file is not None:
         elif i == 1:
             st.markdown(f"**2nd**: {class_name} - {prob:.1%}")
         else:
-            st.markdown(f"**3rd**: {class_name}** - {prob:.1%}")
+            st.markdown(f"**3rd**: {class_name} - {prob:.1%}")
 
     with st.expander("View all class probabilities"):
         for i, prob in enumerate(predictions):
