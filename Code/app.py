@@ -271,7 +271,3 @@ with cols_bottom[1]:
         "learning rate, dropout, and dense layer size, and deployed the best checkpoint "
         "here as a small, real‑time demo."
     )
-    st.caption(
-        "Note: This is a student project, not a replacement for a certified inspection. "
-        "Treat the output as a quick hint, not the final word."
-    )
