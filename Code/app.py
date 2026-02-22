@@ -71,12 +71,12 @@ st.markdown(
         ☀️ SolarShield · Panel Health Scanner
     </div>
     <div class="hero-subtitle">
-        Upload a rooftop shot and let my EfficientNet model give you a clean, no‑nonsense health report in a few seconds.
+        Upload a rooftop shot and let an EfficientNet model give you a clear panel health report in a few seconds.
     </div>
     <div class="tag-row">
         <span class="tag-pill">EfficientNetB0 · Fine‑tuned</span>
         <span class="tag-pill">6 Defect Classes</span>
-        <span class="tag-pill">Built by Sakinala Praveen</span>
+        <span class="tag-pill">Real‑time Inference</span>
     </div>
     """,
     unsafe_allow_html=True,
@@ -86,13 +86,14 @@ st.markdown(
 # Sidebar
 # -------------------------------------------------
 with st.sidebar:
-    st.markdown("### 🧭 What this tool is")
+    st.markdown("### 🧭 Application overview")
     st.write(
-        "SolarShield is a small project where I turned a **fine‑tuned EfficientNetB0** model "
-        "into a simple panel health scanner. The goal is: upload once, get a quick, readable verdict."
+        "This application demonstrates how a **fine‑tuned EfficientNetB0** model can be used "
+        "to classify the condition of a solar panel from a single image. It is designed as an "
+        "academic project to showcase end‑to‑end model deployment."
     )
 
-    st.markdown("#### 🪫 It currently detects")
+    st.markdown("#### 🪫 Classes covered")
     st.write(
         "- Bird droppings\n"
         "- Clean panels\n"
@@ -102,17 +103,16 @@ with st.sidebar:
         "- Snow coverage"
     )
 
-    st.markdown("#### 📸 Before you upload")
+    st.markdown("#### 📸 Image guidelines")
     st.write(
-        "- Try to capture the full panel, not just a corner.\n"
-        "- Avoid extreme glare or very dark images.\n"
-        "- Normal phone camera quality is perfectly fine."
+        "- Capture as much of the panel surface as possible.\n"
+        "- Avoid extreme glare or very low‑light images.\n"
+        "- Standard mobile camera quality is sufficient."
     )
 
     st.markdown("---")
     st.caption(
-        "Made as a B.Tech project by **Sakinala Praveen** · JNTUH\n\n"
-        "SolarShield · AI that actually looks at your panels, not just your data."
+        "SolarShield · A Streamlit demonstration of solar panel defect classification using EfficientNet."
     )
 
 # -------------------------------------------------
@@ -121,7 +121,7 @@ with st.sidebar:
 @st.cache_resource
 def download_and_load_model():
     if not os.path.exists(MODEL_PATH):
-        with st.spinner("Pulling the latest model weights…"):
+        with st.spinner("Downloading model weights…"):
             import subprocess
             subprocess.run(["pip", "install", "-q", "gdown"], check=True)
             import gdown
@@ -135,7 +135,7 @@ def download_and_load_model():
     model = tf.keras.models.load_model(MODEL_PATH)
     return model
 
-with st.spinner("Warming up the EfficientNet engine…"):
+with st.spinner("Loading EfficientNet model into memory…"):
     model = download_and_load_model()
 
 # -------------------------------------------------
@@ -159,7 +159,7 @@ IMG_WIDTH = 224
 left_col, right_col = st.columns([1.08, 1])
 
 with left_col:
-    st.markdown("### 📥 Step 1 · Drop a panel photo")
+    st.markdown("### 📥 Step 1 · Upload a panel image")
 
     uploaded_file = st.file_uploader(
         "Drag & drop a .jpg or .png file, or click to browse",
@@ -175,27 +175,27 @@ with left_col:
             use_column_width=True,
         )
         st.caption(
-            "Tip: If the prediction feels off, try a clearer angle or better lighting."
+            "If the prediction appears unreliable, try uploading a clearer image with better lighting."
         )
     else:
         st.info(
-            "No image yet. Upload a clear rooftop solar panel photo to generate a health report."
+            "Upload a rooftop solar panel image to generate an automated health assessment."
         )
 
 with right_col:
-    st.markdown("### ⚡ Step 2 · Let SolarShield inspect it")
+    st.markdown("### ⚡ Step 2 · Run the model")
 
     if uploaded_file is None:
-        st.warning("Waiting for an image. Once you upload, the AI verdict will appear here.")
+        st.warning("Waiting for an image. Once you upload, the model output will be shown here.")
         predictions = None
     else:
-        # preprocess
+        # Preprocess
         img = image.resize((IMG_HEIGHT, IMG_WIDTH))
         img_array = np.array(img, dtype=np.float32)
         img_array = np.expand_dims(img_array, axis=0)
         img_array = preprocess_input(img_array)
 
-        with st.spinner("Scanning surface patterns, textures and hotspots…"):
+        with st.spinner("Analyzing panel surface patterns and textures…"):
             predictions = model.predict(img_array, verbose=0)[0]
 
         predicted_idx = int(np.argmax(predictions))
@@ -207,9 +207,9 @@ with right_col:
         icon = "✅" if is_clean else "⚠️"
 
         summary_text = (
-            "Panel looks healthy. No major issues flagged by the model."
+            "The panel appears to be in a healthy condition based on the model output."
             if is_clean
-            else "Something looks off. Consider a closer inspection, cleaning, or a technician visit."
+            else "The model indicates possible contamination or damage. Further inspection is recommended."
         )
 
         st.markdown(
@@ -248,7 +248,7 @@ with right_col:
             )
 
 # -------------------------------------------------
-# Full breakdown + model story
+# Full breakdown + model description
 # -------------------------------------------------
 st.markdown("---")
 cols_bottom = st.columns([1.2, 1])
@@ -260,14 +260,14 @@ with cols_bottom[0]:
         for cls, prob in zip(CLASSES, predictions):
             st.write(f"- **{cls}** · {prob:.1%}")
     else:
-        st.caption("Upload an image above to see the full probability breakdown for every class.")
+        st.caption("Upload an image above to view the full probability distribution across all classes.")
 
 with cols_bottom[1]:
-    st.markdown("### 🧬 Under the hood")
+    st.markdown("### 🧬 Model details")
     st.write(
-        "This model started as **EfficientNetB0** pre‑trained on ImageNet. "
-        "I fine‑tuned it on a curated dataset of solar panel images covering dust, snow, "
-        "bird droppings, and multiple damage types. I used Keras Tuner to play with "
-        "learning rate, dropout, and dense layer size, and deployed the best checkpoint "
-        "here as a small, real‑time demo."
+        "The backbone of this application is **EfficientNetB0** pre‑trained on ImageNet and then "
+        "fine‑tuned on a curated dataset of solar panel images covering dust, snow, bird droppings, "
+        "and different damage types. Hyperparameters such as learning rate, dropout, and dense layer "
+        "size were explored using Keras Tuner, and the best performing checkpoint was deployed here "
+        "to enable real‑time inference through a Streamlit interface."
     )
